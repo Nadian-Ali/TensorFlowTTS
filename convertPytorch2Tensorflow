@@ -1,0 +1,444 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled1.ipynb",
+      "provenance": [],
+      "authorship_tag": "ABX9TyNOLNqa0Fiwd4528+blG81c",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Nadian-Ali/TensorFlowTTS/blob/master/convertPytorch2Tensorflow\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "<h1> Convert pyTorch model to Tensorflow model </h1>\n"
+      ],
+      "metadata": {
+        "id": "zw86nK1qZrW3"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "6c6heBpIZpwD",
+        "outputId": "e1f156f1-2f23-4448-ccec-0ad03995840c"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mounted at /content/drive\n"
+          ]
+        }
+      ],
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%cd \"./drive/My Drive/\"\n"
+      ],
+      "metadata": {
+        "id": "JYSCLz2OZ9Cp",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "df676135-de48-4896-98f3-9c28d84d62d3"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "/content/drive/My Drive\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%cd 'Colab Notebooks'"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mnNnSTbyaoTQ",
+        "outputId": "26a02fcb-83b8-4311-87d8-95d1e7ff6b74"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "/content/drive/My Drive/Colab Notebooks\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        ""
+      ],
+      "metadata": {
+        "id": "6OcVAmiwavvA"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# install libraries for google colab\n",
+        "!git clone https://github.com/kan-bayashi/ParallelWaveGAN.git\n",
+        "!cd ParallelWaveGAN; pip install -qq .\n",
+        "!pip install -qq tensorflow-gpu==2.1"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "cIF5x_gaa8ZJ",
+        "outputId": "05eb876a-8665-4dfc-f32d-00c3bea204d9"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Cloning into 'ParallelWaveGAN'...\n",
+            "remote: Enumerating objects: 5667, done.\u001b[K\n",
+            "remote: Counting objects: 100% (1092/1092), done.\u001b[K\n",
+            "remote: Compressing objects: 100% (441/441), done.\u001b[K\n",
+            "remote: Total 5667 (delta 661), reused 895 (delta 586), pack-reused 4575\u001b[K\n",
+            "Receiving objects: 100% (5667/5667), 35.46 MiB | 11.23 MiB/s, done.\n",
+            "Resolving deltas: 100% (3247/3247), done.\n",
+            "Checking out files: 100% (201/201), done.\n",
+            "\u001b[33m  DEPRECATION: A future pip version will change local packages to be built in-place without first copying to a temporary directory. We recommend you use --use-feature=in-tree-build to test your packages with this new behavior before it becomes the default.\n",
+            "   pip 21.3 will remove support for this functionality. You can find discussion regarding this at https://github.com/pypa/pip/issues/7555.\u001b[0m\n",
+            "\u001b[K     |████████████████████████████████| 124 kB 11.6 MB/s \n",
+            "\u001b[K     |████████████████████████████████| 596 kB 58.4 MB/s \n",
+            "\u001b[?25h  Building wheel for parallel-wavegan (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Building wheel for kaldiio (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "\u001b[K     |████████████████████████████████| 421.8 MB 5.4 kB/s \n",
+            "\u001b[K     |████████████████████████████████| 3.8 MB 40.0 MB/s \n",
+            "\u001b[K     |████████████████████████████████| 448 kB 53.1 MB/s \n",
+            "\u001b[K     |████████████████████████████████| 50 kB 7.2 MB/s \n",
+            "\u001b[?25h  Building wheel for gast (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "\u001b[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n",
+            "tensorflow 2.7.0 requires tensorboard~=2.6, but you have tensorboard 2.1.1 which is incompatible.\n",
+            "tensorflow 2.7.0 requires tensorflow-estimator<2.8,~=2.7.0rc0, but you have tensorflow-estimator 2.1.0 which is incompatible.\n",
+            "tensorflow-probability 0.15.0 requires gast>=0.3.2, but you have gast 0.2.2 which is incompatible.\u001b[0m\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "import numpy as np\n",
+        "import torch\n",
+        "import tensorflow as tf\n",
+        "import yaml\n",
+        "from parallel_wavegan.models import MelGANGenerator\n",
+        "from parallel_wavegan.models.tf_models import TFMelGANGenerator"
+      ],
+      "metadata": {
+        "id": "r8I6hAvQcLNm"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# load vocoder config \n",
+        "vocoder_conf = 'ParallelWaveGAN/egs/ljspeech/voc1/conf/melgan.v1.long.yaml'\n",
+        "with open(vocoder_conf) as f:\n",
+        "    config = yaml.load(f, Loader=yaml.Loader)"
+      ],
+      "metadata": {
+        "id": "ri-a2_4fcLVo"
+      },
+      "execution_count": 13,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# define Tensorflow MelGAN generator\n",
+        "tf.compat.v1.disable_eager_execution()\n",
+        "inputs = tf.keras.Input(batch_shape=[None, None, 80], dtype=tf.float32)\n",
+        "audio = TFMelGANGenerator(**config[\"generator_params\"])(inputs)\n",
+        "tf_melgan = tf.keras.models.Model(inputs, audio)\n",
+        "tf_melgan.summary()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "jDn58o2ycLZs",
+        "outputId": "2640ea9d-e238-4fff-b033-338693c39e2a"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "WARNING:tensorflow:From /usr/local/lib/python3.7/dist-packages/tensorflow_core/python/ops/resource_variable_ops.py:1786: calling BaseResourceVariable.__init__ (from tensorflow.python.ops.resource_variable_ops) with constraint is deprecated and will be removed in a future version.\n",
+            "Instructions for updating:\n",
+            "If using Keras pass *_constraint arguments to layers.\n",
+            "Model: \"model\"\n",
+            "_________________________________________________________________\n",
+            "Layer (type)                 Output Shape              Param #   \n",
+            "=================================================================\n",
+            "input_1 (InputLayer)         [(None, None, 80)]        0         \n",
+            "_________________________________________________________________\n",
+            "tf_mel_gan_generator (TFMelG (None, None, 1)           4260257   \n",
+            "=================================================================\n",
+            "Total params: 4,260,257\n",
+            "Trainable params: 4,260,257\n",
+            "Non-trainable params: 0\n",
+            "_________________________________________________________________\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# define pytorch model\n",
+        "pytorch_melgan = MelGANGenerator(**config[\"generator_params\"])\n",
+        "pytorch_melgan.remove_weight_norm()  # needed since TFMelGANGenerator does not support weight norm\n",
+        "pytorch_melgan = pytorch_melgan.to(\"cpu\")"
+      ],
+      "metadata": {
+        "id": "o-Zxb5YTcLdO"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# check the number of variables are the same\n",
+        "state_dict = pytorch_melgan.state_dict()\n",
+        "tf_vars = tf.compat.v1.global_variables()\n",
+        "print(\"Number Tensorflow variables: \", len(tf_vars))\n",
+        "print(\"Number Pytorch variables: \", len(state_dict.keys()))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "sYaak15Fdnb4",
+        "outputId": "4683c596-d3d1-474c-cdc6-3cbf0b306c7c"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Number Tensorflow variables:  84\n",
+            "Number Pytorch variables:  84\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def reorder_tf_vars(tf_vars):\n",
+        "    \"\"\"\n",
+        "    Reorder tensorflow variables to match with pytorch state dict order. \n",
+        "    Since each tensorflow layer's order is bias -> weight while pytorch's \n",
+        "    one is weight -> bias, we change the order of variables.\n",
+        "    \"\"\"\n",
+        "    tf_new_var = []\n",
+        "    for i in range(0, len(tf_vars), 2):\n",
+        "        tf_new_var.append(tf_vars[i + 1])\n",
+        "        tf_new_var.append(tf_vars[i])\n",
+        "    return tf_new_var"
+      ],
+      "metadata": {
+        "id": "k-nd5SOpey_3"
+      },
+      "execution_count": 17,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "# change the order of variables to be the same as pytorch\n",
+        "tf_vars = reorder_tf_vars(tf_vars)"
+      ],
+      "metadata": {
+        "id": "JwUheHDSezD6"
+      },
+      "execution_count": 18,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def convert_weights_pytorch_to_tensorflow(weights_pytorch):\n",
+        "    \"\"\"\n",
+        "    Convert pytorch Conv1d weight variable to tensorflow Conv2D weights.\n",
+        "    Pytorch (f_output, f_input, kernel_size) -> TF (kernel_size, f_input, 1, f_output)\n",
+        "    \"\"\"\n",
+        "    weights_tensorflow = np.transpose(weights_pytorch, (0,2,1))  # [f_output, kernel_size, f_input]\n",
+        "    weights_tensorflow = np.transpose(weights_tensorflow, (1,0,2))  # [kernel-size, f_output, f_input]\n",
+        "    weights_tensorflow = np.transpose(weights_tensorflow, (0,2,1))  # [kernel-size, f_input, f_output]\n",
+        "    weights_tensorflow = np.expand_dims(weights_tensorflow, 1)  # [kernel-size, f_input, 1, f_output]\n",
+        "    return weights_tensorflow"
+      ],
+      "metadata": {
+        "id": "d838-_16ezHo"
+      },
+      "execution_count": 19,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "metadata": {
+        "id": "UHqsg2xuezM-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "\n",
+        "# convert pytorch's variables to tensorflow's one\n",
+        "for i, var_name in enumerate(state_dict):\n",
+        "    try:\n",
+        "        tf_name = tf_vars[i]\n",
+        "        torch_tensor = state_dict[var_name].numpy()\n",
+        "        if torch_tensor.ndim >= 2:\n",
+        "            tensorflow_tensor = convert_weights_pytorch_to_tensorflow(torch_tensor)\n",
+        "        else:\n",
+        "            tensorflow_tensor = torch_tensor\n",
+        "        tf.keras.backend.set_value(tf_name, tensorflow_tensor)\n",
+        "    except:\n",
+        "        print(tf_name)"
+      ],
+      "metadata": {
+        "id": "LkN9IbFddnwa"
+      },
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "fake_mels = np.random.sample((1, 80, 250)).astype(np.float32)\n",
+        "with torch.no_grad():\n",
+        "    y_pytorch = pytorch_melgan(torch.Tensor(fake_mels))\n",
+        "y_tensorflow = tf_melgan.predict(np.transpose(fake_mels, (0, 2, 1)))\n",
+        "np.testing.assert_almost_equal(\n",
+        "    y_pytorch[0, 0, :].numpy(),\n",
+        "    y_tensorflow[0, :, 0],\n",
+        ")"
+      ],
+      "metadata": {
+        "id": "pJuIRsCOfGCZ"
+      },
+      "execution_count": 21,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "metadata": {
+        "id": "0kN_xb7vfGHV"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "os.makedirs(\"./checkpoint/tensorflow_generator/\", exist_ok=True)\n",
+        "os.makedirs(\"./checkpoint/pytorch_generator/\", exist_ok=True)\n",
+        "tf.saved_model.save(tf_melgan, \"./checkpoint/tensorflow_generator/\")\n",
+        "torch.save(pytorch_melgan.state_dict(), \"./checkpoint/pytorch_generator/checkpoint.pkl\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9TvaWX4-fGLb",
+        "outputId": "54735b43-0b84-41b8-da60-d22a505cbf2f"
+      },
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "INFO:tensorflow:Assets written to: ./checkpoint/tensorflow_generator/assets\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "INFO:tensorflow:Assets written to: ./checkpoint/tensorflow_generator/assets\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "metadata": {
+        "id": "7-_dwMFnfGPu"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
